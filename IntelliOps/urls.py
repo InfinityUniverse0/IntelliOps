@@ -16,8 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.urls import re_path as url
+from django.conf import settings
+from django.views.static import serve
+from MainAPP.views import page_not_found
+
 
 urlpatterns = [
+    # Serve static files during development
+    #   (When in production, comment the line below and use a web server like Nginx or Apache)
+    url(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATICFILES_DIRS[0]}, name='static'),
     path('admin/', admin.site.urls),
     path('', include('MainAPP.urls')),  # MainAPP
 ]
+
+handler404 = page_not_found  # Custom 404 error handler
