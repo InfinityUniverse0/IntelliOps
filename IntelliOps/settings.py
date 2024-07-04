@@ -80,9 +80,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'IntelliOps',
         'USER': 'root',
-        'PASSWORD': 'MySQLroot123456',  # TODO: Change to your MySQL password
+        'PASSWORD': 'root123456',  # TODO: Change to your MySQL password
         'HOST': '127.0.0.1',
-        'PORT': 3306
+        'PORT': 3307
     }
 }
 
