@@ -28,3 +28,34 @@ class Event(models.Model):
 
     def __str__(self):
         return self.event_id
+
+
+class Alert(models.Model):
+    """
+    Alert model.
+    """
+    # Alert level choices
+    LEVEL_CHOICES = [
+        ('emergency', '紧急'),
+        ('severe', '严重'),
+        ('minor', '次要'),
+        ('warning', '警告'),
+        ('info', '信息'),
+    ]
+
+    # Alert status choices
+    STATUS_CHOICES = [
+        ('unconfirmed', '未确认'),
+        ('confirmed', '已确认'),
+    ]
+
+    # Alert fields
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES)  # 警报级别
+    title = models.CharField(max_length=255)  # 警报标题
+    event_id = models.CharField(max_length=10, default='')  # 事件ID
+    time = models.DateTimeField(default=timezone.now)  # 时间
+    group = models.CharField(max_length=255, null=True, blank=True)  # 分组
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES)  # 状态
+
+    def __str__(self):
+        return self.title
