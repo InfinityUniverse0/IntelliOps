@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh">
 
@@ -367,8 +368,10 @@
 <!--! ================================================================ !-->
 <!--! [Start] Main Content !-->
 <!--! ================================================================ !-->
-<!doctype html>
-<html lang="en">
+
+
+
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -382,38 +385,8 @@
         }
         .nxl-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             height: 100vh;
-        }
-        .nxl-sidebar {
-            width: 250px;
-            background-color: #ffffff;
-            border-right: 1px solid #ddd;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-        .nxl-sidebar h3 {
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-        .nxl-sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-        .nxl-sidebar ul li {
-            margin-bottom: 10px;
-        }
-        .nxl-sidebar ul li ul {
-            margin-left: 15px;
-            margin-top: 5px;
-        }
-        .nxl-sidebar ul li a {
-            text-decoration: none;
-            color: #333;
-            font-size: 14px;
-        }
-        .nxl-sidebar ul li a:hover {
-            text-decoration: underline;
         }
         .nxl-content {
             flex: 1;
@@ -537,8 +510,9 @@
         }
         .pagination {
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             padding: 10px 0;
+            align-items: center;
         }
         .pagination a {
             margin: 0 5px;
@@ -557,41 +531,28 @@
 </head>
 <body>
 <main class="nxl-container">
-    <div class="nxl-sidebar">
-        <h3>AIOps Live Benchmark</h3>
-        <nav>
-            <ul>
-                <li><a href="#">通知中心</a></li>
-                <ul>
-                    <li><a href="#">通知方式</a></li>
-                </ul>
-            </ul>
-        </nav>
-    </div>
     <div class="nxl-content">
-        <!-- [ page-header ] start -->
+        <!-- 页面标题 -->
         <div class="page-header">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
                     <h5 class="m-b-10">告警信息</h5>
                 </div>
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">首页</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
                     <li class="breadcrumb-item">告警信息</li>
                 </ul>
             </div>
         </div>
-        <!-- [ page-header ] end -->
 
-        <!-- [ Tabs ] start -->
+        <!-- 标签导航 -->
         <div class="tabs">
             <a href="#" class="active">未恢复未确认告警</a>
             <a href="#">未恢复已确认告警</a>
             <a href="#">全部告警</a>
         </div>
-        <!-- [ Tabs ] end -->
 
-        <!-- [ Filter Section ] start -->
+        <!-- 过滤部分 -->
         <div class="filter-section">
             <div class="filters">
                 <button class="btn btn-danger">紧急</button>
@@ -600,7 +561,7 @@
                 <button class="btn btn-info">警告</button>
                 <button class="btn btn-secondary">信息</button>
                 <input type="text" placeholder="关键词">
-                <input type="text" placeholder="IP">
+                <input type="text" placeholder="EventID">
                 <input type="text" placeholder="分组">
             </div>
             <div class="table-container">
@@ -609,31 +570,62 @@
                         <tr>
                             <th>级别</th>
                             <th>关键词</th>
-                            <th>IP</th>
+                            <th>时间</th>
+                            <th>EventID</th>
                             <th>分组</th>
+                            <th>状态</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td colspan="4" class="text-center">暂无数据</td>
-                        </tr>
-                        <!-- 其他空行 -->
-                        <tr class="empty-row"><td colspan="4"></td></tr>
-                        <tr class="empty-row"><td colspan="4"></td></tr>
-                        <tr class="empty-row"><td colspan="4"></td></tr>
-                        <tr class="empty-row"><td colspan="4"></td></tr>
+                        <!-- 循环显示警报信息 -->
+                        {% for alert in alerts %}
+                            <tr>
+                                <td>{{ alert.get_level_display }}</td>
+                                <td>{{ alert.title }}</td>
+                                <td>{{ alert.time }}</td>
+                                <td>{{ alert.event_id }}</td>
+                                <td>{{ alert.group }}</td>
+                                <td>{{ alert.get_status_display }}</td>
+                                <td>
+                                    {% if alert.status == 'unconfirmed' %}
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="alert_id" value="{{ alert.event_id }}">
+                                            <input type="hidden" name="action" value="confirm">
+                                            <button type="submit" style="color: green; border: none; background: none;">确认</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="alert_id" value="{{ alert.event_id }}">
+                                            <input type="hidden" name="action" value="delete">
+                                            <button type="submit" style="color: red; border: none; background: none;">删除</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">暂无数据</td>
+                            </tr>
+                        {% endfor %}
+                        <!-- 添加空行以补充表格 -->
+                        {% for _ in empty_rows %}
+                            <tr class="empty-row">
+                                <td colspan="7"></td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
             <div class="pagination">
+                <a href="#">&#60;</a>
                 <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
+                <a href="#">&#62;</a>
             </div>
         </div>
-        <!-- [ Filter Section ] end -->
+
 
         <!-- [ Table Section ] start -->
         <div class="table-section">
@@ -666,18 +658,20 @@
                 </table>
             </div>
             <div class="pagination">
+                <a href="#">&#60;</a>
                 <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
+                <a href="#">&#62;</a>
             </div>
         </div>
         <!-- [ Table Section ] end -->
     </div>
 </main>
 </body>
+
+
 </html>
+
+
 
 
 
