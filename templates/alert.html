@@ -13,8 +13,9 @@
     <title>IntelliOps</title>
     <!--! END:  Apps Title-->
     <!--! BEGIN: Favicon-->
-
     <!--! END: Favicon-->
+
+    {% load static %}
     <!--! BEGIN: Bootstrap CSS-->
     <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
     <!--! END: Bootstrap CSS-->
@@ -24,6 +25,7 @@
     <!--! END: Vendors CSS-->
     <!--! BEGIN: Custom CSS-->
     <link rel="stylesheet" type="text/css" href="static/css/theme.min.css">
+    <link rel="stylesheet" type="text/css" href="static/css/alert.css">
     <!--! END: Custom CSS-->
     <!--! HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries !-->
     <!--! WARNING: Respond.js doesn"t work if you view the page via file: !-->
@@ -367,110 +369,146 @@
 <!--! ================================================================ !-->
 <!--! [Start] Main Content !-->
 <!--! ================================================================ !-->
-<main class="nxl-container">
-    <div class="nxl-content">
-        <!-- [ page-header ] start -->
-        <div class="page-header">
-            <div class="page-header-left d-flex align-items-center">
-                <div class="page-header-title">
-                    <h5 class="m-b-10">告警信息</h5>
-                </div>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="">首页</a></li>
-                    <li class="breadcrumb-item">告警信息</li>
-                </ul>
-            </div>
-            <div class="page-header-right ms-auto">
-                <div class="page-header-right-items">
-                    <div class="d-flex d-md-none">
-                        <a href="javascript:void(0)" class="page-header-right-close-toggle">
-                            <i class="feather-arrow-left me-2"></i>
-                            <span>Back</span>
-                        </a>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-                        <div id="reportrange" class="reportrange-picker d-flex align-items-center">
-                            <span class="reportrange-picker-field"></span>
-                        </div>
-                        <div class="dropdown filter-dropdown">
-                            <a class="btn btn-md btn-light-brand" data-bs-toggle="dropdown" data-bs-offset="0, 10" data-bs-auto-close="outside">
-                                <i class="feather-filter me-2"></i>
-                                <span>Filter</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <div class="dropdown-item">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="Role" checked="checked">
-                                        <label class="custom-control-label c-pointer" for="Role">Role</label>
-                                    </div>
-                                </div>
-                                <div class="dropdown-item">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="Team" checked="checked">
-                                        <label class="custom-control-label c-pointer" for="Team">Team</label>
-                                    </div>
-                                </div>
-                                <div class="dropdown-item">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="Email" checked="checked">
-                                        <label class="custom-control-label c-pointer" for="Email">Email</label>
-                                    </div>
-                                </div>
-                                <div class="dropdown-item">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="Member" checked="checked">
-                                        <label class="custom-control-label c-pointer" for="Member">Member</label>
-                                    </div>
-                                </div>
-                                <div class="dropdown-item">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="Recommendation" checked="checked">
-                                        <label class="custom-control-label c-pointer" for="Recommendation">Recommendation</label>
-                                    </div>
-                                </div>
-                                <div class="dropdown-divider"></div>
-                                <a href="javascript:void(0);" class="dropdown-item">
-                                    <i class="feather-plus me-3"></i>
-                                    <span>Create New</span>
-                                </a>
-                                <a href="javascript:void(0);" class="dropdown-item">
-                                    <i class="feather-filter me-3"></i>
-                                    <span>Manage Filter</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-md-none d-flex align-items-center">
-                    <a href="javascript:void(0)" class="page-header-right-open-toggle">
-                        <i class="feather-align-right fs-20"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <!-- [ page-header ] end -->
 
-        <!-- [ Main Content ] start -->
-        <div class="main-content">
-            <p class="text-muted">Welcome to the Dashboard</p>
-            <p class="text-muted">TODO: Begin Here</p>
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">告警信息</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                        <li class="breadcrumb-item">告警信息</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 标签导航 -->
+            <div class="tabs">
+                <a href="?status_filter=unconfirmed" class="{% if status_filter == 'unconfirmed' %}active{% endif %}">未恢复未确认告警</a>
+                <a href="?status_filter=confirmed" class="{% if status_filter == 'confirmed' %}active{% endif %}">未恢复已确认告警</a>
+                <a href="?status_filter=all" class="{% if status_filter == 'all' %}active{% endif %}">全部告警</a>
+            </div>
+
+            <!-- 过滤部分 -->
+            <div class="filter-section">
+                <form method="get" class="filters">
+                    <input type="hidden" name="status_filter" value="{{ status_filter }}">
+                    <button class="btn btn-danger" type="submit" name="level" value="emergency">紧急</button>
+                    <button class="btn btn-warning" type="submit" name="level" value="severe">严重</button>
+                    <button class="btn btn-primary" type="submit" name="level" value="minor">次要</button>
+                    <button class="btn btn-info" type="submit" name="level" value="warning">警告</button>
+                    <button class="btn btn-secondary" type="submit" name="level" value="info">信息</button>
+                    <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
+                    <input type="text" name="event_id" placeholder="EventID" value="{{ event_id }}">
+                    <button type="submit">筛选</button>
+                </form>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>级别</th>
+                                <th>关键词</th>
+                                <th>时间</th>
+                                <th>EventID</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                       <tbody>
+                            <!-- 循环显示警报信息 -->
+                            {% for alert in alerts %}
+                                <tr>
+                                    <td>{{ alert.get_level_display }}</td>
+                                    <td>{{ alert.title }}</td>
+                                    <td>{{ alert.time }}</td>
+                                    <td>{{ alert.event_id }}</td>
+                                    <td class="status">{{ alert.get_status_display }}</td>
+                                    <td class="actions">
+                                        {% if alert.status == 'unconfirmed' %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
+                                                <input type="hidden" name="action" value="confirm">
+                                                <button type="submit" style="color: green; border: none; background: none;">确认</button>
+                                            </form>
+                                        {% elif alert.status == 'confirmed' %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" style="color: red; border: none; background: none;">删除</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">暂无数据</td>
+                                </tr>
+                            {% endfor %}
+                            <!-- 添加空行以补充表格 -->
+                            {% for _ in empty_rows %}
+                                <tr class="empty-row">
+                                    <td colspan="7" style="text-align: center;"></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <a href="#">&#60;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">&#62;</a>
+                </div>
+            </div>
+
+            <!-- [ Table Section ] start -->
+            <div class="table-section">
+                <h6>通知记录——敬请期待</h6>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>级别</th>
+                                <th>告警标题</th>
+                                <th>通知时间</th>
+                                <th>通知状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>紧急</td>
+                                <td>[操作系统] tingyun swap使用空间不足</td>
+                                <td>2024-07-04 16:38:05</td>
+                                <td>成功</td>
+                                <td><a href="#" class="btn-delete">删除</a></td>
+                            </tr>
+                            <tr class="empty-row">
+                                <td colspan="5" style="text-align: center;">暂无数据</td>
+                            </tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <a href="#">&#60;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">&#62;</a>
+                </div>
+            </div>
+            <!-- [ Table Section ] end -->
         </div>
-        <!-- [ Main Content ] end -->
-    </div>
-    <!-- [ Footer ] start -->
-    <footer class="footer">
-        <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
-            <span>Copyright &copy; 2024. IntelliOps All rights reserved.</span>
-            <script data-cfasync="false" src="static/js/email-decode.min.js"></script>
-        </p>
-        <div class="d-flex align-items-center gap-4">
-            <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
-            <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
-            <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
-        </div>
-    </footer>
-    <!-- [ Footer ] end -->
-</main>
+    </main>
+
+
 <!--! ================================================================ !-->
 <!--! [End] Main Content !-->
 <!--! ================================================================ !-->
