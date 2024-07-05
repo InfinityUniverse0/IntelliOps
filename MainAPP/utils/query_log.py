@@ -3,6 +3,7 @@ Log Model Retrieval
 """
 
 import os
+from django.forms import model_to_dict
 
 # Set the Django settings module
 os.environ['DJANGO_SETTINGS_MODULE'] = "IntelliOps.settings"
@@ -51,3 +52,19 @@ def get_log_by_event(event_id):
     # event = Event.objects.get(event_id=event_id)
     # return Log.objects.filter(event=event)
     return Log.objects.filter(event__event_id=event_id)
+
+
+def queryset_to_list_of_dicts(queryset):
+    """
+    Convert a Django QuerySet to a list of dictionaries.
+
+    :param queryset: Django QuerySet (here: Log QuerySet)
+    :return: List of dictionaries
+    """
+    list_of_dicts = []
+    for instance in queryset:
+        log_dict = model_to_dict(instance)
+        log_dict['time'] = log_dict['time'].strftime('%H:%M:%S')
+        log_dict['event_id'] = instance.event.event_id
+        list_of_dicts.append(log_dict)
+    return list_of_dicts

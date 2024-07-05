@@ -36,6 +36,11 @@
   <script src="#"></script>
   <script src="#"></script>
   <![endif]-->
+
+    {# Below we use a global var to pass data from backend to js file #}
+    <script>
+        var logs = {{ logs|safe }};
+    </script>
 </head>
 
 <body>
