@@ -7,8 +7,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 import os
-import csv
-import re
 import time
 from collections import deque
 from datetime import datetime
