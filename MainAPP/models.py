@@ -34,3 +34,25 @@ class Alert(models.Model):
     def __str__(self):
         return self.title  # 返回警报的标题
 
+
+
+
+from django.db import models
+from django.utils import timezone
+
+class Notification(models.Model):
+    LEVEL_CHOICES = [
+        ('emergency', '紧急'),
+        ('severe', '严重'),
+        ('minor', '次要'),
+        ('warning', '警告'),
+        ('info', '信息'),
+    ]
+
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES)  # 通知级别
+    title = models.CharField(max_length=255)  # 通知标题
+    time = models.DateTimeField(default=timezone.now)  # 通知时间
+    status = models.CharField(max_length=11, default='成功')  # 通知状态
+
+    def __str__(self):
+        return self.title

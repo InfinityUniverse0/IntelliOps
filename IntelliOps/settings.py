@@ -71,6 +71,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'IntelliOps.wsgi.application'
 
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '2450444617@qq.com'  # 你的QQ邮箱
+EMAIL_HOST_PASSWORD = 'lggobgqiqlufeagh'  # 你的QQ邮箱授权码
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
