@@ -6,6 +6,7 @@ import os
 import csv
 import re
 from tqdm import tqdm
+from preprocessing.preprocessing import log2csv
 
 # Set the Django settings module
 os.environ['DJANGO_SETTINGS_MODULE'] = "IntelliOps.settings"
@@ -14,35 +15,6 @@ import django
 django.setup()  # Initialize Django
 from django.utils.dateparse import parse_time
 from MainAPP.models import Log, Event
-
-
-# Log line regular expression pattern
-log_pattern = re.compile(r'(\w{3})\s+(\d{1,2})\s+(\d{2}:\d{2}:\d{2})\s+(\S+)\s+(.+?)(?:\[(\d+)\])?:\s+(.*)')
-
-
-def log2csv(log_file_path, csv_file_path):
-    """
-    Convert log file to CSV file (Structured data).
-    """
-    print('Converting log file `{}` to CSV file `{}`'.format(log_file_path, csv_file_path))
-
-    with open(log_file_path, 'r') as log_file, open(csv_file_path, 'w', newline='') as csv_file:
-        csv_writer = csv.writer(csv_file)
-
-        # Write the header of the CSV file
-        csv_writer.writerow(['Month', 'Date', 'Time', 'Hostname', 'Component', 'PID', 'Content'])
-
-        for line in tqdm(log_file):  # tqdm is used to display a progress bar
-            match = log_pattern.match(line)  # Match each line of the log file using regular expression
-            if match:
-                month, date, time, hostname, component, pid, content = match.groups()
-                pid = pid if pid else None  # Set PID to None if it is empty
-                csv_writer.writerow([month, date, time, hostname, component, pid, content])
-            else:
-                # Print error message
-                print('Error: Log line does not match the pattern: `{}`'.format(line))
-
-    print('Log file `{}` has been successfully converted to CSV file `{}`'.format(log_file_path, csv_file_path))
 
 
 def insert_log_from_csv(structured_csv_path, template_csv_path):
