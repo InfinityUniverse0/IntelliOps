@@ -166,5 +166,5 @@ cython_debug/
 data/Linux_2k.log_structured.csv
 
 # Model Checkpoints
-model/ckpt
+model/ckpt/*
 !model/ckpt/model.pth

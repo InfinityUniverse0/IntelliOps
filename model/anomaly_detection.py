@@ -137,7 +137,9 @@ if __name__ == "__main__":
     templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Linux_2k.log_templates.csv')
     train_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Linux_2k.log')
 
-    detector = AnomalyDetector(templates_path, None, True, train_path, device)
+    # detector = AnomalyDetector(templates_path, None, True, train_path, device)
+    model_path = os.path.join(os.path.dirname(__file__), 'ckpt', 'model.pth')
+    detector = AnomalyDetector(templates_path, model_path, False, None, device)
 
     # 测试效果
     with open(train_path, 'r') as file:
