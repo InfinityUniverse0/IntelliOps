@@ -131,7 +131,7 @@ $(function () {
     new ApexCharts(document.querySelector("#disk-io-chart"), {
         chart: {
             height: 370,
-            type: "area",
+            type: "line",
             stacked: false,
             toolbar: {
                 show: false
@@ -164,11 +164,11 @@ $(function () {
         },
         yaxis: [{
             title: {
-                text: '磁盘读写率 (%)',
+                text: '磁盘读量',
             },
             labels: {
                 formatter: function (e) {
-                    return e + "%"
+                    return e + "MB/s"
                 },
                 offsetX: -22,
                 offsetY: 0,
@@ -176,15 +176,34 @@ $(function () {
                     fontSize: "11px",
                     color: "#64748b"
                 }
-            }
-        }, {
-            opposite: true,
+            },
+            show: false
+        },
+        {
             title: {
-                text: '磁盘IO利用率 (%)',
+                text: '磁盘写量',
             },
             labels: {
                 formatter: function (e) {
-                    return e + "%"
+                    return e + "MB/s"
+                },
+                offsetX: -22,
+                offsetY: 0,
+                style: {
+                    fontSize: "11px",
+                    color: "#64748b"
+                }
+            },
+            show: false
+        }, {
+            opposite: true,
+            title: {
+                text: '磁盘IO利用率',
+                rotate: -90,
+            },
+            labels: {
+                formatter: function (e) {
+                    return e.toFixed(4) + "%"
                 }
             }
         }],
@@ -233,8 +252,8 @@ $(function () {
             data: [
                 [1590854407000, 0.0],
                 [1590854467000, 0.0],
-                [1590854547000, 0.0],
-                [1590854587000, 0.0],
+                [1590854547000, 0.00003],
+                [1590854587000, 0.00001],
                 [1590854647000, 0.0],
                 [1590854707000, 0.0],
                 [1590854767000, 0.0],
@@ -243,6 +262,7 @@ $(function () {
                 [1590854947000, 0.0],
                 [1590855007000, 0.0]
             ],
+            yAxisIndex: 0,
             type: "area"
         }, {
             name: '磁盘写',
@@ -259,6 +279,7 @@ $(function () {
                 [1590854947000, 0.005209],
                 [1590855007000, 0.007457]
             ],
+            yAxisIndex: 0,
             type: "area"
         }, {
             name: '磁盘IO利用率',
@@ -275,13 +296,18 @@ $(function () {
                 [1590854947000, 0.0],
                 [1590855007000, 0.0]
             ],
-            type: 'line',
-            yAxisIndex: 1
+            yAxisIndex: 1,
+            type: 'line'
         }],
         tooltip: {
             y: {
-                formatter: function (e) {
-                    return e + "%"
+                formatter: function (value, { seriesIndex, dataPointIndex, w }) {
+                    if (seriesIndex === 0 || seriesIndex === 1) {
+                        return value + " MB/s";
+                    } else if (seriesIndex === 2) {
+                        return value + "%";
+                    }
+                    return value;
                 }
             },
             style: {
@@ -395,21 +421,64 @@ $(function () {
         }
     }).render();
 }), $(document).ready(function () {
-    new ApexCharts(document.querySelector("#network-traffic-chart"), {
+    var dataInflow = [
+        [1590854425000, 11.557136],
+        [1590854485000, 11.026352],
+        [1590854545000, 11.257099],
+        [1590854605000, 11.456979],
+        [1590854665000, 12.320941],
+        [1590854725000, 12.533992],
+        [1590854785000, 13.538003],
+        [1590854845000, 11.531398],
+        [1590854905000, 13.111662],
+        [1590854965000, 12.450254],
+        [1590855026000, 12.395362]
+    ];
+
+    var dataOutflow = [
+        [1590854425000, 0.012698],
+        [1590854485000, 0.012027],
+        [1590854545000, 0.012343],
+        [1590854605000, 0.012425],
+        [1590854665000, 0.012824],
+        [1590854725000, 0.01309],
+        [1590854785000, 0.013779],
+        [1590854845000, 0.012379],
+        [1590854905000, 0.013389],
+        [1590854965000, 0.013143],
+        [1590855026000, 0.013099]
+    ];
+
+    var options = {
         chart: {
             height: 370,
-            type: "line",
+            type: "area",
             toolbar: {
                 show: false
+            },
+            animations: {
+                enabled: true,
+                easing: 'linear',
+                dynamicAnimation: {
+                    speed: 1000
+                }
+            },
+            zoom: {
+                enabled: false
+            },
+            events: {
+                legendClick: function (chartContext, seriesIndex, config) {
+                    var series = chartContext.w.config.series;
+                    series[seriesIndex].show = !series[seriesIndex].show;
+                    chartContext.updateOptions({
+                        series: series
+                    });
+                }
             }
         },
         xaxis: {
             type: 'datetime',
-            categories: [
-                1590854425000, 1590854485000, 1590854545000, 1590854605000,
-                1590854665000, 1590854725000, 1590854785000, 1590854845000,
-                1590854905000, 1590854965000, 1590855026000
-            ],
+            range: 600000, // 显示10分钟的数据
             axisBorder: {
                 show: false
             },
@@ -442,8 +511,9 @@ $(function () {
             }
         },
         stroke: {
+            width: 2,
             curve: "smooth",
-            width: 2
+            lineCap: "round"
         },
         grid: {
             padding: {
@@ -460,7 +530,7 @@ $(function () {
         legend: {
             show: true
         },
-        colors: ["#008FFB", "#00E396"], // 曲线颜色
+        colors: ["#008FFB", "#00E396"],
         dataLabels: {
             enabled: false
         },
@@ -468,55 +538,19 @@ $(function () {
             type: "gradient",
             gradient: {
                 shadeIntensity: 1,
-                opacityFrom: .7, // 调整为更不透明
-                opacityTo: .5, // 调整为稍微透明
-                stops: [0, 90, 100],
-                colorStops: [
-                    {
-                        offset: 0,
-                        color: "#008FFB", // 流入流量渐变起始颜色
-                        opacity: 0.7
-                    },
-                    {
-                        offset: 100,
-                        color: "#00E396", // 流出流量渐变起始颜色
-                        opacity: 0.5
-                    }
-                ]
+                opacityFrom: .4,
+                opacityTo: .8,
+                stops: [0, 90, 100]
             }
         },
         series: [{
             name: "平均每秒流入总流量",
-            data: [
-                [1590854425000, 11.557136],
-                [1590854485000, 11.026352],
-                [1590854545000, 11.257099],
-                [1590854605000, 11.456979],
-                [1590854665000, 12.320941],
-                [1590854725000, 12.533992],
-                [1590854785000, 13.538003],
-                [1590854845000, 11.531398],
-                [1590854905000, 13.111662],
-                [1590854965000, 12.450254],
-                [1590855026000, 12.395362]
-            ],
-            type: "area"
+            data: dataInflow,
+            show: true // 默认显示
         }, {
             name: "平均每秒流出总流量",
-            data: [
-                [1590854425000, 0.012698],
-                [1590854485000, 0.012027],
-                [1590854545000, 0.012343],
-                [1590854605000, 0.012425],
-                [1590854665000, 0.012824],
-                [1590854725000, 0.01309],
-                [1590854785000, 0.013779],
-                [1590854845000, 0.012379],
-                [1590854905000, 0.013389],
-                [1590854965000, 0.013143],
-                [1590855026000, 0.013099]
-            ],
-            type: "area"
+            data: dataOutflow,
+            show: true // 默认显示
         }],
         tooltip: {
             y: {
@@ -529,5 +563,43 @@ $(function () {
                 fontFamily: "Inter"
             }
         }
-    }).render();
+    };
+
+    var chart = new ApexCharts(document.querySelector("#network-traffic-chart"), options);
+    chart.render();
+
+    function getNewData() {
+        var lastInflowDate = dataInflow[dataInflow.length - 1][0];
+        var lastOutflowDate = dataOutflow[dataOutflow.length - 1][0];
+        var newTimestamp = Math.max(lastInflowDate, lastOutflowDate) + 60000;
+
+        var newInflow = (Math.random() * 3 + 10).toFixed(6);
+        var newOutflow = (Math.random() / 10).toFixed(6);
+
+        dataInflow.push([newTimestamp, parseFloat(newInflow)]);
+        dataOutflow.push([newTimestamp, parseFloat(newOutflow)]);
+
+        if (dataInflow.length > 10) {
+            dataInflow.shift();
+            dataOutflow.shift();
+        }
+
+        // 获取当前图例显示状态
+        var activeSeries = chart.w.config.series.map(series => series.show);
+
+        // 更新数据并保持显示状态
+        chart.updateSeries([{
+            name: "平均每秒流入总流量",
+            data: dataInflow,
+            show: activeSeries[0]
+        }, {
+            name: "平均每秒流出总流量",
+            data: dataOutflow,
+            show: activeSeries[1]
+        }]);
+    }
+
+    window.setInterval(function () {
+        getNewData();
+    }, 1000);
 });
