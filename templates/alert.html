@@ -451,7 +451,6 @@
             flex-wrap: wrap;
         }
         .filters .btn {
-            flex: 1;
             padding: 10px;
             border: none;
             cursor: pointer;
@@ -467,7 +466,6 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            flex: 1;
         }
         .table-container {
             margin-top: 20px;
@@ -491,6 +489,7 @@
         }
         .table tbody tr.empty-row td {
             height: 40px; /* 确保空行与数据行一样高 */
+            text-align: center; /* 确保空行文本居中 */
         }
         .footer {
             margin-top: 20px;
@@ -528,190 +527,144 @@
             border-color: #007bff;
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $(".confirm-btn").click(function(e) {
-                e.preventDefault();
-                var alertId = $(this).data("alert-id");
-                var row = $(this).closest("tr");
-                $.ajax({
-                    url: "{% url 'alert' %}",
-                    type: "POST",
-                    data: {
-                        alert_id: alertId,
-                        action: "confirm",
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            row.remove(); // 删除行
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        alert("确认失败，请重试。");
-                    }
-                });
-            });
-
-            $(document).on("submit", ".delete-form", function(e) {
-                e.preventDefault();
-                var form = $(this);
-                var alertId = form.find("input[name='alert_id']").val();
-                $.ajax({
-                    url: "{% url 'alert' %}",
-                    type: "POST",
-                    data: form.serialize(),
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            form.closest("tr").remove(); // 删除行
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        alert("删除失败，请重试。");
-                    }
-                });
-            });
-        });
-    </script>
 </head>
 <body>
-<main class="nxl-container">
-    <div class="nxl-content">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div class="page-header-left d-flex align-items-center">
-                <div class="page-header-title">
-                    <h5 class="m-b-10">告警信息</h5>
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">告警信息</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                        <li class="breadcrumb-item">告警信息</li>
+                    </ul>
                 </div>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
-                    <li class="breadcrumb-item">告警信息</li>
-                </ul>
             </div>
-        </div>
 
-        <!-- 标签导航 -->
-        <div class="tabs">
-            <a href="?status_filter=unconfirmed" class="{% if status_filter == 'unconfirmed' %}active{% endif %}">未恢复未确认告警</a>
-            <a href="?status_filter=confirmed" class="{% if status_filter == 'confirmed' %}active{% endif %}">未恢复已确认告警</a>
-            <a href="?status_filter=all" class="{% if status_filter == 'all' %}active{% endif %}">全部告警</a>
-        </div>
+            <!-- 标签导航 -->
+            <div class="tabs">
+                <a href="?status_filter=unconfirmed" class="{% if status_filter == 'unconfirmed' %}active{% endif %}">未恢复未确认告警</a>
+                <a href="?status_filter=confirmed" class="{% if status_filter == 'confirmed' %}active{% endif %}">未恢复已确认告警</a>
+                <a href="?status_filter=all" class="{% if status_filter == 'all' %}active{% endif %}">全部告警</a>
+            </div>
 
-        <!-- 过滤部分 -->
-        <div class="filter-section">
-            <form method="get" class="filters">
-                <input type="hidden" name="status_filter" value="{{ status_filter }}">
-                <button class="btn btn-danger" type="submit" name="level" value="emergency">紧急</button>
-                <button class="btn btn-warning" type="submit" name="level" value="severe">严重</button>
-                <button class="btn btn-primary" type="submit" name="level" value="minor">次要</button>
-                <button class="btn btn-info" type="submit" name="level" value="warning">警告</button>
-                <button class="btn btn-secondary" type="submit" name="level" value="info">信息</button>
-                <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
-                <input type="text" name="event_id" placeholder="EventID" value="{{ event_id }}">
-                <button type="submit">筛选</button>
-            </form>
+            <!-- 过滤部分 -->
+            <div class="filter-section">
+                <form method="get" class="filters">
+                    <input type="hidden" name="status_filter" value="{{ status_filter }}">
+                    <button class="btn btn-danger" type="submit" name="level" value="emergency">紧急</button>
+                    <button class="btn btn-warning" type="submit" name="level" value="severe">严重</button>
+                    <button class="btn btn-primary" type="submit" name="level" value="minor">次要</button>
+                    <button class="btn btn-info" type="submit" name="level" value="warning">警告</button>
+                    <button class="btn btn-secondary" type="submit" name="level" value="info">信息</button>
+                    <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
+                    <input type="text" name="event_id" placeholder="EventID" value="{{ event_id }}">
+                    <button type="submit">筛选</button>
+                </form>
 
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>级别</th>
-                            <th>关键词</th>
-                            <th>时间</th>
-                            <th>EventID</th>
-                            <th>状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- 循环显示警报信息 -->
-                        {% for alert in alerts %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td>{{ alert.get_level_display }}</td>
-                                <td>{{ alert.title }}</td>
-                                <td>{{ alert.time }}</td>
-                                <td>{{ alert.event_id }}</td>
-                                <td class="status">{{ alert.get_status_display }}</td>
-                                <td class="actions">
-                                    {% if alert.status == 'unconfirmed' %}
-                                        <button class="confirm-btn" data-alert-id="{{ alert.event_id }}" style="color: green; border: none; background: none;">确认</button>
-                                    {% elif alert.status == 'confirmed' %}
-                                        <form method="post" class="delete-form" style="display: inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="alert_id" value="{{ alert.event_id }}">
-                                            <input type="hidden" name="action" value="delete">
-                                            <button type="submit" style="color: red; border: none; background: none;">删除</button>
-                                        </form>
-                                    {% endif %}
-                                </td>
+                                <th>级别</th>
+                                <th>关键词</th>
+                                <th>时间</th>
+                                <th>EventID</th>
+                                <th>状态</th>
+                                <th>操作</th>
                             </tr>
-                        {% empty %}
+                        </thead>
+                       <tbody>
+                            <!-- 循环显示警报信息 -->
+                            {% for alert in alerts %}
+                                <tr>
+                                    <td>{{ alert.get_level_display }}</td>
+                                    <td>{{ alert.title }}</td>
+                                    <td>{{ alert.time }}</td>
+                                    <td>{{ alert.event_id }}</td>
+                                    <td class="status">{{ alert.get_status_display }}</td>
+                                    <td class="actions">
+                                        {% if alert.status == 'unconfirmed' %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
+                                                <input type="hidden" name="action" value="confirm">
+                                                <button type="submit" style="color: green; border: none; background: none;">确认</button>
+                                            </form>
+                                        {% elif alert.status == 'confirmed' %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" style="color: red; border: none; background: none;">删除</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">暂无数据</td>
+                                </tr>
+                            {% endfor %}
+                            <!-- 添加空行以补充表格 -->
+                            {% for _ in empty_rows %}
+                                <tr class="empty-row">
+                                    <td colspan="7" style="text-align: center;"></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <a href="#">&#60;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">&#62;</a>
+                </div>
+            </div>
+
+            <!-- [ Table Section ] start -->
+            <div class="table-section">
+                <h6>通知记录——敬请期待</h6>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td colspan="7" class="text-center">暂无数据</td>
+                                <th>级别</th>
+                                <th>告警标题</th>
+                                <th>通知时间</th>
+                                <th>通知状态</th>
+                                <th>操作</th>
                             </tr>
-                        {% endfor %}
-                        <!-- 添加空行以补充表格 -->
-                        {% for _ in empty_rows %}
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>紧急</td>
+                                <td>[操作系统] tingyun swap使用空间不足</td>
+                                <td>2024-07-04 16:38:05</td>
+                                <td>成功</td>
+                                <td><a href="#" class="btn-delete">删除</a></td>
+                            </tr>
                             <tr class="empty-row">
-                                <td colspan="7"></td>
+                                <td colspan="5" style="text-align: center;">暂无数据</td>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <a href="#">&#60;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">&#62;</a>
+                </div>
             </div>
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">&#62;</a>
-            </div>
+            <!-- [ Table Section ] end -->
         </div>
-
-        <!-- [ Table Section ] start -->
-        <div class="table-section">
-            <h6>通知记录</h6>
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>级别</th>
-                            <th>告警标题</th>
-                            <th>通知时间</th>
-                            <th>通知状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>紧急</td>
-                            <td>[操作系统] tingyun swap使用空间不足</td>
-                            <td>2024-07-04 16:38:05</td>
-                            <td>成功</td>
-                            <td><a href="#" class="btn-delete">删除</a></td>
-                        </tr>
-
-                        <!-- 其他空行 -->
-                        <tr class="empty-row"><td colspan="5" style="text-align: center;">上面是示例（通知不知道还要不要加，加的话应该类似上面的，然后可以使用IMAP/SMTP服务发QQ邮箱）</td></tr>
-
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">&#62;</a>
-            </div>
-        </div>
-        <!-- [ Table Section ] end -->
-    </div>
-</main>
+    </main>
 </body>
 </html>
 

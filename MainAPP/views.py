@@ -11,36 +11,38 @@ def monitor(request):
 
 # def alert(request):
 #     return render(request, 'alert.html')
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from .models import Alert
 
 def alert(request):
     # 获取筛选条件
     status_filter = request.GET.get('status_filter', 'all')
-    keyword = request.GET.get('keyword')
-    event_id = request.GET.get('event_id')
-    level = request.GET.get('level')
+    keyword = request.GET.get('keyword', '').strip()  # 去除空格
+    event_id = request.GET.get('event_id', '').strip()  # 去除空格
+    level = request.GET.get('level', '')
 
     # 处理 POST 请求
     if request.method == 'POST':
         alert_id = request.POST.get('alert_id')
         action = request.POST.get('action')
+
+        # 打印POST请求的内容
+        print("POST请求数据:", request.POST)
+        print("alert_id:", alert_id)
+        print("action:", action)
+
         if alert_id and action:
             try:
-                alert_instance = Alert.objects.get(event_id=alert_id)
+                alert_instance = Alert.objects.get(id=alert_id)
                 if action == 'confirm' and alert_instance.status == 'unconfirmed':
-                    alert_instance.status = 'confirmed'  # 将状态设置为已确认
+                    alert_instance.status = 'confirmed'
                     alert_instance.save()
-                    return JsonResponse({'status': 'success', 'message': '已确认'})
                 elif action == 'delete' and alert_instance.status == 'confirmed':
-                    alert_instance.delete()  # 删除警报
-                    return JsonResponse({'status': 'success', 'message': '已删除'})
-                else:
-                    return JsonResponse({'status': 'error', 'message': '无效的操作'})
+                    alert_instance.delete()
             except Alert.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': '警报不存在'})
-        return JsonResponse({'status': 'error', 'message': '无效的请求'})
+                pass
+        query_string = request.META.get('QUERY_STRING', '')
+        return redirect(f'{request.path}?{query_string}')
 
     # 根据筛选条件过滤警报信息
     alerts = Alert.objects.all()
@@ -62,7 +64,7 @@ def alert(request):
     # 计算表格需要的空行数
     num_alerts = alerts.count()
     num_empty_rows = max(5 - num_alerts, 0)
-    empty_rows = [None] * num_empty_rows  # 生成空行列表以补充表格
+    empty_rows = [None] * num_empty_rows
 
     return render(request, 'alert.html', {
         'alerts': alerts,

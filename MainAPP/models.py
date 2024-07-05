@@ -3,6 +3,11 @@ from django.utils import timezone
 import uuid
 
 # 定义 Alert 模型
+from django.db import models
+from django.utils import timezone
+import uuid
+
+# 定义 Alert 模型
 class Alert(models.Model):
     # 定义警报级别的选项
     LEVEL_CHOICES = [
@@ -26,11 +31,6 @@ class Alert(models.Model):
     time = models.DateTimeField(default=timezone.now)  # 时间
     status = models.CharField(max_length=11, choices=STATUS_CHOICES)  # 状态
 
-    # 保存方法，生成随机的 event_id
-    def save(self, *args, **kwargs):
-        if not self.event_id:
-            self.event_id = f'E{uuid.uuid4().int % 100 + 1}'  # 生成随机 EventID
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.title  # 返回警报的标题
+
