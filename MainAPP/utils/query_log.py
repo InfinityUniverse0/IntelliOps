@@ -66,5 +66,6 @@ def queryset_to_list_of_dicts(queryset):
         log_dict = model_to_dict(instance)
         log_dict['time'] = log_dict['time'].strftime('%H:%M:%S')
         log_dict['event_id'] = instance.event.event_id
+        log_dict['timestamp'] = int(instance.timestamp.timestamp())
         list_of_dicts.append(log_dict)
     return list_of_dicts

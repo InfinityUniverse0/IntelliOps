@@ -8,6 +8,7 @@ $(document).ready(function () {
 
         logs.forEach((log, index) => {
             const row = `<tr class="single-item">
+                <td>${log.timestamp}</td>
                 <td>${log.month}</td>
                 <td>${log.date}</td>
                 <td>${log.time}</td>

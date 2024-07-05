@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+import datetime
 
 
 class Log(models.Model):
@@ -17,6 +18,16 @@ class Log(models.Model):
 
     def __str__(self):
         return f"{self.month} {self.date} {self.time} {self.hostname} {self.component} {self.pid} {self.content}"
+
+    @property
+    def timestamp(self):
+        month_to_number = {
+            'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+            'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+        }
+        month_num = month_to_number[self.month]
+        current_year = timezone.now().year  # Assumes logs are from the current year
+        return datetime.datetime(current_year, month_num, self.date, self.time.hour, self.time.minute, self.time.second)
 
 
 class Event(models.Model):
