@@ -54,7 +54,6 @@ class Alert(models.Model):
     title = models.CharField(max_length=255)  # 警报标题
     event_id = models.CharField(max_length=10, default='')  # 事件ID
     time = models.DateTimeField(default=timezone.now)  # 时间
-    group = models.CharField(max_length=255, null=True, blank=True)  # 分组
     status = models.CharField(max_length=11, choices=STATUS_CHOICES)  # 状态
 
     def __str__(self):
