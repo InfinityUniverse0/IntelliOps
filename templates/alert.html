@@ -25,6 +25,7 @@
     <!--! END: Vendors CSS-->
     <!--! BEGIN: Custom CSS-->
     <link rel="stylesheet" type="text/css" href="static/css/theme.min.css">
+    <link rel="stylesheet" type="text/css" href="static/css/alert.css">
     <!--! END: Custom CSS-->
     <!--! HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries !-->
     <!--! WARNING: Respond.js doesn"t work if you view the page via file: !-->
@@ -370,311 +371,142 @@
 <!--! ================================================================ !-->
 
 
-
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>告警信息</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
-        }
-        .nxl-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .nxl-content {
-            flex: 1;
-            padding: 20px;
-            background-color: #f7f7f7;
-            overflow-y: auto;
-        }
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-        }
-        .breadcrumb {
-            list-style: none;
-            display: flex;
-            padding: 0;
-            margin: 0;
-        }
-        .breadcrumb-item + .breadcrumb-item::before {
-            content: '>';
-            margin: 0 5px;
-        }
-        .breadcrumb-item a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        .tabs {
-            display: flex;
-            margin-top: 20px;
-            border-bottom: 2px solid #ddd;
-        }
-        .tabs a {
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #007bff;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            margin-right: 5px;
-            background-color: #ffffff;
-        }
-        .tabs a.active {
-            background-color: #007bff;
-            color: #ffffff;
-            border-color: #007bff;
-        }
-        .filter-section, .table-section {
-            background-color: #ffffff;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .filter-section h6, .table-section h6 {
-            margin-top: 0;
-        }
-        .filters {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .filters .btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .filters .btn-danger { background-color: #dc3545; color: white; }
-        .filters .btn-warning { background-color: #ffc107; color: black; }
-        .filters .btn-primary { background-color: #007bff; color: white; }
-        .filters .btn-info { background-color: #17a2b8; color: white; }
-        .filters .btn-secondary { background-color: #6c757d; color: white; }
-        .filters input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            flex: 1;
-        }
-        .table-container {
-            margin-top: 20px;
-            height: 200px; /* 固定表格高度，使其适应五行数据 */
-            overflow-y: auto;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .table th {
-            background-color: #f7f7f7;
-        }
-        .table tbody tr {
-            height: 40px; /* 每行的高度 */
-        }
-        .table tbody tr.empty-row td {
-            height: 40px; /* 确保空行与数据行一样高 */
-        }
-        .footer {
-            margin-top: 20px;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            background-color: #ffffff;
-        }
-        .footer a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        .btn-delete {
-            color: #dc3545;
-            cursor: pointer;
-        }
-        .pagination {
-            display: flex;
-            justify-content: flex-end;
-            padding: 10px 0;
-            align-items: center;
-        }
-        .pagination a {
-            margin: 0 5px;
-            padding: 8px 12px;
-            text-decoration: none;
-            color: #007bff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .pagination a.active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
-</head>
-<body>
-<main class="nxl-container">
-    <div class="nxl-content">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div class="page-header-left d-flex align-items-center">
-                <div class="page-header-title">
-                    <h5 class="m-b-10">告警信息</h5>
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">告警信息</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                        <li class="breadcrumb-item">告警信息</li>
+                    </ul>
                 </div>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
-                    <li class="breadcrumb-item">告警信息</li>
-                </ul>
             </div>
-        </div>
 
-        <!-- 标签导航 -->
-        <div class="tabs">
-            <a href="#" class="active">未恢复未确认告警</a>
-            <a href="#">未恢复已确认告警</a>
-            <a href="#">全部告警</a>
-        </div>
-
-        <!-- 过滤部分 -->
-        <div class="filter-section">
-            <div class="filters">
-                <button class="btn btn-danger">紧急</button>
-                <button class="btn btn-warning">严重</button>
-                <button class="btn btn-primary">次要</button>
-                <button class="btn btn-info">警告</button>
-                <button class="btn btn-secondary">信息</button>
-                <input type="text" placeholder="关键词">
-                <input type="text" placeholder="EventID">
-                <input type="text" placeholder="分组">
+            <!-- 标签导航 -->
+            <div class="tabs">
+                <a href="?status_filter=unconfirmed" class="{% if status_filter == 'unconfirmed' %}active{% endif %}">未恢复未确认告警</a>
+                <a href="?status_filter=confirmed" class="{% if status_filter == 'confirmed' %}active{% endif %}">未恢复已确认告警</a>
+                <a href="?status_filter=all" class="{% if status_filter == 'all' %}active{% endif %}">全部告警</a>
             </div>
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>级别</th>
-                            <th>关键词</th>
-                            <th>时间</th>
-                            <th>EventID</th>
-                            <th>分组</th>
-                            <th>状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- 循环显示警报信息 -->
-                        {% for alert in alerts %}
+
+            <!-- 过滤部分 -->
+            <div class="filter-section">
+                <form method="get" class="filters">
+                    <input type="hidden" name="status_filter" value="{{ status_filter }}">
+                    <button class="btn btn-danger" type="submit" name="level" value="emergency">紧急</button>
+                    <button class="btn btn-warning" type="submit" name="level" value="severe">严重</button>
+                    <button class="btn btn-primary" type="submit" name="level" value="minor">次要</button>
+                    <button class="btn btn-info" type="submit" name="level" value="warning">警告</button>
+                    <button class="btn btn-secondary" type="submit" name="level" value="info">信息</button>
+                    <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
+                    <input type="text" name="event_id" placeholder="EventID" value="{{ event_id }}">
+                    <button type="submit">筛选</button>
+                </form>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td>{{ alert.get_level_display }}</td>
-                                <td>{{ alert.title }}</td>
-                                <td>{{ alert.time }}</td>
-                                <td>{{ alert.event_id }}</td>
-                                <td>{{ alert.group }}</td>
-                                <td>{{ alert.get_status_display }}</td>
-                                <td>
-                                    {% if alert.status == 'unconfirmed' %}
-                                        <form method="post" style="display: inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="alert_id" value="{{ alert.event_id }}">
-                                            <input type="hidden" name="action" value="confirm">
-                                            <button type="submit" style="color: green; border: none; background: none;">确认</button>
-                                        </form>
-                                    {% else %}
-                                        <form method="post" style="display: inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="alert_id" value="{{ alert.event_id }}">
-                                            <input type="hidden" name="action" value="delete">
-                                            <button type="submit" style="color: red; border: none; background: none;">删除</button>
-                                        </form>
-                                    {% endif %}
-                                </td>
+                                <th>级别</th>
+                                <th>关键词</th>
+                                <th>时间</th>
+                                <th>EventID</th>
+                                <th>状态</th>
+                                <th>操作</th>
                             </tr>
-                        {% empty %}
+                        </thead>
+                       <tbody>
+                            <!-- 循环显示警报信息 -->
+                            {% for alert in alerts %}
+                                <tr>
+                                    <td>{{ alert.get_level_display }}</td>
+                                    <td>{{ alert.title }}</td>
+                                    <td>{{ alert.time }}</td>
+                                    <td>{{ alert.event_id }}</td>
+                                    <td class="status">{{ alert.get_status_display }}</td>
+                                    <td class="actions">
+                                        {% if alert.status == 'unconfirmed' %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
+                                                <input type="hidden" name="action" value="confirm">
+                                                <button type="submit" style="color: green; border: none; background: none;">确认</button>
+                                            </form>
+                                        {% elif alert.status == 'confirmed' %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" style="color: red; border: none; background: none;">删除</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">暂无数据</td>
+                                </tr>
+                            {% endfor %}
+                            <!-- 添加空行以补充表格 -->
+                            {% for _ in empty_rows %}
+                                <tr class="empty-row">
+                                    <td colspan="7" style="text-align: center;"></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <a href="#">&#60;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">&#62;</a>
+                </div>
+            </div>
+
+            <!-- [ Table Section ] start -->
+            <div class="table-section">
+                <h6>通知记录——敬请期待</h6>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td colspan="7" class="text-center">暂无数据</td>
+                                <th>级别</th>
+                                <th>告警标题</th>
+                                <th>通知时间</th>
+                                <th>通知状态</th>
+                                <th>操作</th>
                             </tr>
-                        {% endfor %}
-                        <!-- 添加空行以补充表格 -->
-                        {% for _ in empty_rows %}
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>紧急</td>
+                                <td>[操作系统] tingyun swap使用空间不足</td>
+                                <td>2024-07-04 16:38:05</td>
+                                <td>成功</td>
+                                <td><a href="#" class="btn-delete">删除</a></td>
+                            </tr>
                             <tr class="empty-row">
-                                <td colspan="7"></td>
+                                <td colspan="5" style="text-align: center;">暂无数据</td>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                            <tr class="empty-row"><td colspan="5"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <a href="#">&#60;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">&#62;</a>
+                </div>
             </div>
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">&#62;</a>
-            </div>
+            <!-- [ Table Section ] end -->
         </div>
-
-
-        <!-- [ Table Section ] start -->
-        <div class="table-section">
-            <h6>通知记录</h6>
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>级别</th>
-                            <th>告警标题</th>
-                            <th>通知时间</th>
-                            <th>通知状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>紧急</td>
-                            <td>[操作系统] tingyun swap使用空间不足</td>
-                            <td>2024-07-04 16:38:05</td>
-                            <td>成功</td>
-                            <td><a href="#" class="btn-delete">删除</a></td>
-                        </tr>
-                        <!-- 其他空行 -->
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                        <tr class="empty-row"><td colspan="5"></td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">&#62;</a>
-            </div>
-        </div>
-        <!-- [ Table Section ] end -->
-    </div>
-</main>
-</body>
-
-
-</html>
-
-
-
-
-
+    </main>
 
 
 <!--! ================================================================ !-->
