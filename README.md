@@ -6,6 +6,20 @@ IntelliOps: An AIOps Web System.
 >
 > Code is available at [GitHub](https://github.com/InfinityUniverse0/IntelliOps).
 
+## Demo
+
+![welcome](screenshots/welcome.png)
+
+![dashboard](screenshots/dashboard.png)
+
+![darkmode](screenshots/darkmode.png)
+
+![monitor](screenshots/monitor.png)
+
+![alert](screenshots/alert.png)
+
+![about](screenshots/about.png)
+
 ## Quick Start
 
 > [!NOTE]
