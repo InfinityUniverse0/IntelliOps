@@ -2,6 +2,9 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from .utils.query_log import get_log, get_log_by_event, queryset_to_list_of_dicts
+from .models import Log, Event, AnomalyLog
+from model.anomaly_detection import detector
+from random import choice
 
 
 def index(request):
@@ -23,11 +26,72 @@ def monitor(request):
         logs = get_log()
         logs = queryset_to_list_of_dicts(logs)
         return render(request, 'monitor.html', {'logs': json.dumps(logs)}, status=200)
+    print('Invalid request:', request.method)
     return render(request, 'monitor.html', status=400)
 
 
 def alert(request):
     return render(request, 'alert.html')  # Render the alert.html template
+
+
+def get_anomaly_logs(request):
+    if request.method == 'POST':
+        # month_to_number = {
+        #     'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        #     'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+        # }
+        #
+        # case_statements = " ".join([
+        #     f"WHEN '{month}' THEN '{number}'"
+        #     for month, number in month_to_number.items()
+        # ])
+
+        logs_to_predict = Log.objects.filter(anomalylog__isnull=True)
+        logs_to_predict = logs_to_predict.first()
+        if logs_to_predict:
+        # logs = logs_to_predict
+        # for logs_to_predict in logs:
+            anomaly = detector.predict_online(logs_to_predict.event.event_id)
+            if anomaly:
+                AnomalyLog.objects.update_or_create(
+                    month=logs_to_predict.month,
+                    date=logs_to_predict.date,
+                    time=logs_to_predict.time,
+                    hostname=logs_to_predict.hostname,
+                    component=logs_to_predict.component,
+                    pid=logs_to_predict.pid,
+                    content=logs_to_predict.content,
+                    event=logs_to_predict.event,
+                    severity_level=choice(AnomalyLog.SEVERITY_LEVEL_CHOICES)[0],
+                    error_code=choice(AnomalyLog.ERROR_CODE_CHOICES)[0]
+                )
+                print('Anomaly detected:', logs_to_predict)
+            else:
+                if anomaly is None:
+                    print('Not enough data:', logs_to_predict)
+                else:
+                    print('Normal:', logs_to_predict)
+        anomaly_logs = AnomalyLog.objects.all().order_by('-alert_time')
+        print(len(anomaly_logs))
+        alerts = [
+            {
+                'month': anomaly_log.month,
+                'date': anomaly_log.date,
+                'time': anomaly_log.time.strftime('%H:%M:%S'),
+                'hostname': anomaly_log.hostname,
+                'component': anomaly_log.component,
+                'pid': anomaly_log.pid,
+                'content': anomaly_log.content,
+                'severity_level': anomaly_log.severity_level,
+                'error_code': anomaly_log.error_code,
+                'alert_time': anomaly_log.alert_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'confirmation_status': anomaly_log.confirmation_status,
+                'event_id': anomaly_log.event.event_id,
+            }
+            for anomaly_log in anomaly_logs
+        ]
+        return JsonResponse({'anomaly_logs': json.dumps(alerts, ensure_ascii=False)}, status=200)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def about(request):

@@ -10,7 +10,7 @@ import os
 import time
 from collections import deque
 from datetime import datetime
-from model import DeepLog as Model
+from .model import DeepLog as Model
 from preprocessing.preprocessing import get_event_templates, log2eid
 
 
@@ -18,6 +18,8 @@ class AnomalyDetector:
     """
     Anomaly Detector
     """
+    queue_online = deque()  # Online queue (Class variable, used in predict_online method)
+
     def __init__(self, templates_file_path, model_path, train=False, train_file_path=None, device='cpu'):
         """
         Initialize Anomaly Detector.
@@ -73,6 +75,31 @@ class AnomalyDetector:
                 self.q.append(eid)
                 return not (label in preds)
 
+    def predict_online(self, log_eid, k=9):
+        """
+        Predict whether the log is an anomaly (Online version).
+
+        :param log_eid: Log Event ID
+        :param k: Top-k predictions used for anomaly detection (Default: 9)
+        :return: Anomaly (True), Normal (False) or None (Not enough data)
+        """
+        self.model.eval()
+        with torch.no_grad():
+            eid = int(log_eid[1:]) - 1  # Convert Event ID to integer (Start from 0) [E.g., E1 -> 0]
+            if len(self.queue_online) < self.window_size:
+                self.queue_online.append(eid)
+                return None
+            else:
+                seq = torch.tensor(list(self.queue_online), dtype=torch.float).view(
+                    -1, self.window_size, self.input_size
+                ).to(self.device)
+                label = torch.tensor(eid).view(-1).to(self.device)
+                output = self.model(seq)
+                preds = torch.argsort(output, 1)[0][-k:]
+                self.queue_online.popleft()
+                self.queue_online.append(eid)
+                return not (label in preds)
+
     def _train(self, train_file_path):
         dataLoader = DataLoader(
             self._generate_dataset(train_file_path), batch_size=self.batch_size, shuffle=True, pin_memory=True
@@ -125,23 +152,24 @@ class AnomalyDetector:
         return dataset
 
 
-if __name__ == "__main__":
+device = 'cpu'
+if torch.cuda.is_available():
+    device = 'cuda'
+elif torch.backends.mps.is_available():
+    device = 'mps'
 
-    device = 'cpu'
-    if torch.cuda.is_available():
-        device = 'cuda'
-    elif torch.backends.mps.is_available():
-        device = 'mps'
+templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Linux_2k.log_templates.csv')
+train_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Linux_2k.log')
+
+# detector = AnomalyDetector(templates_path, None, True, train_path, device)
+model_path = os.path.join(os.path.dirname(__file__), 'ckpt', 'model.pth')
+detector = AnomalyDetector(templates_path, model_path, False, None, device)
+
+
+if __name__ == "__main__":
     print('Using {} device'.format(device))
 
-    templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Linux_2k.log_templates.csv')
-    train_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Linux_2k.log')
-
-    # detector = AnomalyDetector(templates_path, None, True, train_path, device)
-    model_path = os.path.join(os.path.dirname(__file__), 'ckpt', 'model.pth')
-    detector = AnomalyDetector(templates_path, model_path, False, None, device)
-
     # 测试效果
-    with open(train_path, 'r') as file:
-        for log in file.readlines():
-            print(detector.predict(log))
+    # with open(train_path, 'r') as file:
+    #     for log in file.readlines():
+    #         print(detector.predict(log))
