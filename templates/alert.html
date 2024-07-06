@@ -391,23 +391,24 @@
 
             <!-- 标签导航 -->
             <div class="tabs">
-                <a href="?status_filter=unconfirmed" class="{% if status_filter == 'unconfirmed' %}active{% endif %}">未恢复未确认告警</a>
-                <a href="?status_filter=confirmed" class="{% if status_filter == 'confirmed' %}active{% endif %}">未恢复已确认告警</a>
+                <a href="?status_filter=unconfirmed" class="{% if status_filter == 'UNCONFIRMED' %}active{% endif %}">未恢复未确认告警</a>
+                <a href="?status_filter=confirmed" class="{% if status_filter == 'CONFIRMED' %}active{% endif %}">未恢复已确认告警</a>
                 <a href="?status_filter=all" class="{% if status_filter == 'all' %}active{% endif %}">全部告警</a>
             </div>
 
             <!-- 过滤部分 -->
             <div class="filter-section">
-                <form method="get" class="filters">
+                <form method="get" class="filters" id="filter-form">
                     <input type="hidden" name="status_filter" value="{{ status_filter }}">
-                    <button class="btn btn-danger" type="submit" name="level" value="fatal">紧急</button>
-                    <button class="btn btn-warning" type="submit" name="level" value="critical">严重</button>
-                    <button class="btn btn-primary" type="submit" name="level" value="error">错误</button>
-                    <button class="btn btn-info" type="submit" name="level" value="warning">警告</button>
-                    <button class="btn btn-secondary" type="submit" name="level" value="info">信息</button>
-                    <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
+                    <button class="btn btn-danger" type="submit" name="level" value="FATAL">紧急</button>
+                    <button class="btn btn-warning" type="submit" name="level" value="CRITICAL">严重</button>
+                    <button class="btn btn-primary" type="submit" name="level" value="ERROR">错误</button>
+                    <button class="btn btn-info" type="submit" name="level" value="WARNING">警告</button>
+                    <button class="btn btn-secondary" type="submit" name="level" value="INFO">信息</button>
+                    <button class="btn btn-icon" type="submit" name="level" value="all">全部</button>
+                    <!-- <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
                     <input type="text" name="event_id" placeholder="EventID" value="{{ event_id }}">
-                    <button type="submit">筛选</button>
+                    <button type="submit">筛选</button> -->
                 </form>
 
                 <div class="table-container">
@@ -465,7 +466,6 @@
                             <tr class="empty-row">
                                 <td colspan="5" style="text-align: center;">暂无数据</td>
                             </tr>
-                            <tr class="empty-row"><td colspan="5"></td></tr>
                             <tr class="empty-row"><td colspan="5"></td></tr>
                             <tr class="empty-row"><td colspan="5"></td></tr>
                         </tbody>

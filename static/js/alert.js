@@ -4,7 +4,44 @@ function getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
+// document.addEventListener('DOMContentLoaded', function() {
+//     // 获取表单元素
+//     const form = document.getElementById('filter-form');
+//
+//     // 获取隐藏输入字段的值
+//     const statusFilter = document.getElementById('status-filter').value;
+//     console.log('Status Filter:', statusFilter);
+//
+//     // 获取所有按钮
+//     const buttons = form.querySelectorAll('button[name="level"]');
+//
+//     // 为每个按钮添加点击事件监听器
+//     buttons.forEach(button => {
+//         button.addEventListener('click', function(event) {
+//             event.preventDefault();  // 防止表单提交
+//
+//             const levelValue = this.value;
+//             console.log('Selected Level:', levelValue);
+//
+//             // 你可以在这里处理选中的 level 值
+//             // 比如发送 AJAX 请求或者更新页面内容等
+//         });
+//     });
+// });
+
+
+function getFormData() {
+    const form = document.querySelector('.filters');
+    const formData = new FormData(form);
+    const statusFilter = formData.get('status_filter');
+    const level = formData.get('level');
+    return { statusFilter, level };
+}
+
+
 function fetchAnomalyLogs() {
+    const { statusFilter, level } = getFormData();
+
     fetch(anomalyLogsUrl, {
         method: 'POST',
         headers: {
@@ -13,6 +50,8 @@ function fetchAnomalyLogs() {
             'X-CSRFToken': getCSRFToken()  // 添加 CSRF 令牌到头部
         },
         body: JSON.stringify({
+            'status_filter': statusFilter,
+            'level': level,
             'csrf_token': getCSRFToken()
         })
     })
@@ -35,7 +74,7 @@ function fetchAnomalyLogs() {
                 const confirmationStatusCell = document.createElement('td');
                 confirmationStatusCell.textContent = `${log.confirmation_status}`;
                 const actionCell = document.createElement('td');
-                actionCell.textContent = 'TEST';
+                actionCell.innerHTML = `<a href="#" class="btn btn-icon">确认</a>`;
                 tableRow.appendChild(severityLevelCell);
                 tableRow.appendChild(errorCodeCell);
                 tableRow.appendChild(alertTimeCell);

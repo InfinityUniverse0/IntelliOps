@@ -35,7 +35,7 @@ def alert(request):
 
 
 def get_anomaly_logs(request):
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         # month_to_number = {
         #     'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
         #     'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
@@ -45,6 +45,10 @@ def get_anomaly_logs(request):
         #     f"WHEN '{month}' THEN '{number}'"
         #     for month, number in month_to_number.items()
         # ])
+
+        data = json.loads(request.body)
+        status_filter = data.get('status_filter')
+        level = data.get('level')
 
         logs_to_predict = Log.objects.filter(anomalylog__isnull=True)
         logs_to_predict = logs_to_predict.first()
@@ -71,8 +75,21 @@ def get_anomaly_logs(request):
                     print('Not enough data:', logs_to_predict)
                 else:
                     print('Normal:', logs_to_predict)
-        anomaly_logs = AnomalyLog.objects.all().order_by('-alert_time')
-        print(len(anomaly_logs))
+        anomaly_logs = AnomalyLog.objects.all()
+
+        # print(status_filter)
+        # print(type(status_filter))
+        # print(level)
+        # print(type(level))
+
+        if status_filter and status_filter != 'all':
+            anomaly_logs = anomaly_logs.filter(confirmation_status=status_filter)
+        if level and level != 'all':
+            anomaly_logs = anomaly_logs.filter(severity_level=level)
+
+        anomaly_logs = anomaly_logs.order_by('-alert_time')
+
+        # print(len(anomaly_logs))  # For Debugging
         alerts = [
             {
                 'month': anomaly_log.month,
