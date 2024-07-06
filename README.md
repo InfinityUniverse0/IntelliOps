@@ -2,7 +2,7 @@
 
 IntelliOps: An AIOps Web System.
 
-> Code is available at [GitHub]([InfinityUniverse0/IntelliOps: IntelliOps: An AIOps Web System. (github.com)](https://github.com/InfinityUniverse0/IntelliOps)).
+> Code is available at [GitHub](https://github.com/InfinityUniverse0/IntelliOps).
 
 ## Structure
 
