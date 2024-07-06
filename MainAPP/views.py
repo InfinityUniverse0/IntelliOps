@@ -7,6 +7,17 @@ from model.anomaly_detection import detector
 from random import choice
 
 
+def welcome(request):
+    return render(request, 'welcome.html')  # Render the welcome.html template
+
+def login(request):
+    return render(request, 'login.html')  # Render the login.html template
+
+
+def register(request):
+    return render(request, 'register.html')  # Render the register.html template
+
+
 def index(request):
     return render(request, 'index.html')  # Render the index.html template
 
