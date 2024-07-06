@@ -39,3 +39,38 @@ class Event(models.Model):
 
     def __str__(self):
         return self.event_id
+
+
+class AnomalyLog(Log):
+    """
+    Anomaly Log model.
+    """
+    SEVERITY_LEVEL_CHOICES = [
+        ('INFO', '信息'),
+        ('WARNING', '警告'),
+        ('ERROR', '错误'),
+        ('CRITICAL', '严重'),
+        ('FATAL', '致命')
+    ]
+
+    ERROR_CODE_CHOICES = [
+        ('ERR001', '错误代码001'),
+        ('ERR002', '错误代码002'),
+        ('ERR003', '错误代码003'),
+        ('ERR004', '错误代码004')
+    ]
+
+    CONFIRMATION_STATUS_CHOICES = [
+        ('UNCONFIRMED', '未确认'),
+        ('CONFIRMED', '已确认')
+    ]
+
+    severity_level = models.CharField(max_length=25, choices=SEVERITY_LEVEL_CHOICES, verbose_name='Severity Level')
+    error_code = models.CharField(max_length=25, choices=ERROR_CODE_CHOICES, verbose_name='Error Code')
+    confirmation_status = models.CharField(
+        max_length=25, choices=CONFIRMATION_STATUS_CHOICES, default='UNCONFIRMED', verbose_name='Confirmation Status'
+    )
+    alert_time = models.DateTimeField(default=timezone.now, verbose_name='Alert Time')
+
+    def __str__(self):
+        return f"{super().__str__()} {self.severity_level} {self.error_code} {self.confirmation_status} {self.time}"
