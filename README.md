@@ -2,34 +2,50 @@
 
 IntelliOps: An AIOps Web System.
 
+> Code is available at [GitHub]([InfinityUniverse0/IntelliOps: IntelliOps: An AIOps Web System. (github.com)](https://github.com/InfinityUniverse0/IntelliOps)).
+
 ## Structure
 
 ```sh
-- welcome
-	- 简介
-	- 用户登录
-	- 用户注册
-	- 忘记密码、重置密码等等
-	- 登录后界面发生变化（原来的注册与登录 -> 模块按钮）
-- Dashboard（仪表盘）
-	- 各种仪表盘
-	- 时间序列类型的数据
-		- 如CPU、内存、磁盘、网络利用率等
-    - 也可以包含日志信息的总结
-- 事件监控
-	- 查看所有日志
-	- 日志查询（比如按照事件类型）
-	- 日志信息统计（可视化）
-- 告警信息
-	- 日志告警（AI）
-        - 运行DeepLog模型
-        - 显示告警信息（异常日志）
-        - 页面呈现：展示告警信息（异常日志）的列表
-    - Dashboard中其他信息的告警
-- About
-	- About页面
-- 用户Profile（可选）
-- 后台管理（Django Admin 可自动化生成）
+.
+├── IntelliOps
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── LICENSE
+├── MainAPP
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   ├── utils
+│   │   ├── __init__.py
+│   │   └── query_log.py
+│   └── views.py
+├── README.md
+├── data
+├── init_db.py
+├── manage.py
+├── model
+│   ├── anomaly_detection.py
+│   ├── ckpt
+│   │   └── model.pth
+│   └── model.py
+├── preprocessing
+│   ├── __init__.py
+│   └── preprocessing.py
+├── requirements.txt
+├── static
+│   ├── css
+│   ├── font
+│   ├── image
+│   └── js
+└── templates
 ```
 
 ## Quick Start
@@ -87,11 +103,3 @@ python manage.py runserver 127.0.0.1:8000
 > You can change the port as you want.
 
 Visit `127.0.0.1:8000` for the IntelliOps Web Project.
-
-## To Do
-
-- [ ] 用户管理系统
-- [ ] admin后台管理
-- [x] 生产环境部署（Nginx）
-- [x] 用户手册
-- [x] requirements.txt
