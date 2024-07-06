@@ -1,21 +1,64 @@
 "use strict";
 $(function () {
-    new ApexCharts(document.querySelector("#cpu-memory-util-chart"), {
+    var dataCPU = [
+        [1590854416000, 1.896559],
+        [1590854476000, 6.843433],
+        [1590854596000, 7.323213],
+        [1590854606000, 9.843433],
+        [1590854656000, 11.896434],
+        [1590854716000, 20.714378],
+        [1590854776000, 17.806021],
+        [1590854836000, 16.213132],
+        [1590854896000, 23.873758],
+        [1590854956000, 25.048189],
+        [1590855016000, 13.834786]
+    ];
+
+    var dataMemory = [
+        [1590854416000, 41.90],
+        [1590854476000, 43.63],
+        [1590854596000, 50.71],
+        [1590854606000, 56.32],
+        [1590854656000, 64.12],
+        [1590854716000, 75.98],
+        [1590854776000, 73.41],
+        [1590854836000, 77.23],
+        [1590854896000, 80.11],
+        [1590854956000, 82.34],
+        [1590855016000, 60.12]
+    ];
+
+    var options = {
         chart: {
             height: 370,
             type: "area",
             stacked: false,
             toolbar: {
                 show: false
+            },
+            animations: {
+                enabled: true,
+                easing: 'linear',
+                dynamicAnimation: {
+                    speed: 2000
+                }
+            },
+            zoom: {
+                enabled: false
+            },
+            events: {
+                legendClick: function (chartContext, seriesIndex, config) {
+                    var series = chartContext.w.config.series;
+                    series[seriesIndex].show = !series[seriesIndex].show;
+                    chartContext.updateOptions({
+                        series: series
+                    });
+                }
             }
         },
         xaxis: {
             type: 'datetime',
-            categories: [
-                1590854416000, 1590854476000, 1590854606000, 1590854656000,
-                1590854716000, 1590854776000, 1590854836000, 1590854896000,
-                1590854956000, 1590855016000
-            ],
+            range: 600000, // 显示10分钟的数据
             axisBorder: {
                 show: false
             },
@@ -28,9 +71,7 @@ $(function () {
                     colors: "#64748b"
                 },
                 formatter: function (value) {
-                    // 使用 Date 对象和 toLocaleDateString 来格式化时间戳
                     return new Date(value).toLocaleDateString('zh-CN', {
-                        // year: 'numeric', month: 'short', day: 'numeric'
                         hour: 'numeric', minute: 'numeric', hour12: false
                     });
                 }
@@ -85,35 +126,12 @@ $(function () {
         },
         series: [{
             name: "CPU 使用率",
-            data: [
-                [1590854416000, 1.896559],
-                [1590854476000, 1.843433],
-                [1590854606000, 70],
-                [1590854656000, 50],
-                [1590854716000,],
-                [1590854776000, 1.83448],
-                [1590854836000, 10],
-                [1590854896000, 1.873758],
-                [1590854956000, 2.048189],
-                [1590855016000, 1.834786]
-            ],
-            type: "area"
+            data: dataCPU,
+            show: true // 默认显示
         }, {
             name: "内存使用率",
-            data: [
-                [1590854416000, 75.98],
-                [1590854476000, 75.98],
-                [1590854536000, 75.97],
-                [1590854596000, 75.98],
-                [1590854656000, 75.98],
-                [1590854716000, 75.98],
-                [1590854776000, 75.98],
-                [1590854836000, 75.97],
-                [1590854896000, 75.98],
-                [1590854956000, 75.98],
-                [1590855016000, 75.98]
-            ],
-            type: "area"
+            data: dataMemory,
+            show: true // 默认显示
         }],
         tooltip: {
             y: {
@@ -126,24 +144,115 @@ $(function () {
                 fontFamily: "Inter"
             }
         }
-    }).render()
-}), $(document).ready(function () {
-    new ApexCharts(document.querySelector("#disk-io-chart"), {
+    };
+
+    var chart = new ApexCharts(document.querySelector("#cpu-memory-util-chart"), options);
+    chart.render();
+
+    function getNewData() {
+        var lastCPUDate = dataCPU[dataCPU.length - 1][0];
+        var lastMemoryDate = dataMemory[dataMemory.length - 1][0];
+        var newTimestamp = Math.max(lastCPUDate, lastMemoryDate) + 60000;
+
+        var newCPU = (Math.random() * 20 + 5).toFixed(6);
+        var newMemory = (Math.random() * 40 + 40).toFixed(6);
+
+        dataCPU.push([newTimestamp, parseFloat(newCPU)]);
+        dataMemory.push([newTimestamp, parseFloat(newMemory)]);
+
+
+        // 获取当前图例显示状态
+        var activeSeries = chart.w.config.series.map(series => series.show);
+
+        // 更新数据并保持显示状态
+        chart.updateSeries([{
+            name: "CPU 使用率",
+            data: dataCPU,
+            show: activeSeries[0]
+        }, {
+            name: "内存使用率",
+            data: dataMemory,
+            show: activeSeries[1]
+        }]);
+    }
+
+    window.setInterval(function () {
+        getNewData();
+    }, 2000);
+}), $(function () {
+    var dataDiskRead = [
+        [1590854407000, 0.001],
+        [1590854467000, 0.002],
+        [1590854547000, 0.0015],
+        [1590854587000, 0.0025],
+        [1590854647000, 0.0018],
+        [1590854707000, 0.0022],
+        [1590854767000, 0.0019],
+        [1590854827000, 0.0024],
+        [1590854887000, 0.0021],
+        [1590854947000, 0.0017],
+        [1590855007000, 0.0019]
+    ];
+
+    var dataDiskWrite = [
+        [1590854407000, 0.005],
+        [1590854467000, 0.0055],
+        [1590854547000, 0.0052],
+        [1590854587000, 0.006],
+        [1590854647000, 0.0057],
+        [1590854707000, 0.0062],
+        [1590854767000, 0.0058],
+        [1590854827000, 0.0061],
+        [1590854887000, 0.0059],
+        [1590854947000, 0.0056],
+        [1590855007000, 0.0057]
+    ];
+
+    var dataDiskUtilization = [
+        [1590854407000, 10.0],
+        [1590854467000, 15.0],
+        [1590854547000, 12.0],
+        [1590854587000, 17.0],
+        [1590854647000, 13.0],
+        [1590854707000, 18.0],
+        [1590854767000, 14.0],
+        [1590854827000, 16.0],
+        [1590854887000, 15.0],
+        [1590854947000, 11.0],
+        [1590855007000, 12.0]
+    ];
+
+    var options = {
         chart: {
             height: 370,
             type: "line",
             stacked: false,
             toolbar: {
                 show: false
+            },
+            animations: {
+                enabled: true,
+                easing: 'linear',
+                dynamicAnimation: {
+                    speed: 2000
+                }
+            },
+            zoom: {
+                enabled: false
+            },
+            events: {
+                legendClick: function (chartContext, seriesIndex, config) {
+                    var series = chartContext.w.config.series;
+                    series[seriesIndex].show = !series[seriesIndex].show;
+                    chartContext.updateOptions({
+                        series: series
+                    });
+                }
             }
         },
         xaxis: {
             type: 'datetime',
-            categories: [
-                1590854407000, 1590854467000, 1590854547000, 1590854587000,
-                1590854647000, 1590854707000, 1590854767000, 1590854827000,
-                1590854887000, 1590854947000, 1590855007000
-            ],
+            range: 600000,
             axisBorder: {
                 show: false
             },
@@ -249,55 +358,19 @@ $(function () {
         },
         series: [{
             name: '磁盘读',
-            data: [
-                [1590854407000, 0.0],
-                [1590854467000, 0.0],
-                [1590854547000, 0.00003],
-                [1590854587000, 0.00001],
-                [1590854647000, 0.0],
-                [1590854707000, 0.0],
-                [1590854767000, 0.0],
-                [1590854827000, 0.0],
-                [1590854887000, 0.0],
-                [1590854947000, 0.0],
-                [1590855007000, 0.0]
-            ],
-            yAxisIndex: 0,
+            data: dataDiskRead,
+            show: true,
             type: "area"
         }, {
             name: '磁盘写',
-            data: [
-                [1590854407000, 0.006462],
-                [1590854467000, 0.009086],
-                [1590854547000, 0.005401],
-                [1590854587000, 0.007714],
-                [1590854647000, 0.005601],
-                [1590854707000, 0.006883],
-                [1590854767000, 0.006774],
-                [1590854827000, 0.007113],
-                [1590854887000, 0.008213],
-                [1590854947000, 0.005209],
-                [1590855007000, 0.007457]
-            ],
-            yAxisIndex: 0,
+            data: dataDiskWrite,
+            show: true,
             type: "area"
         }, {
             name: '磁盘IO利用率',
-            data: [
-                [1590854407000, 0.0],
-                [1590854467000, 0.0],
-                [1590854547000, 0.033285],
-                [1590854587000, 0.25013],
-                [1590854647000, 0.04997],
-                [1590854707000, 0.383127],
-                [1590854767000, 0.218898],
-                [1590854827000, 0.100136],
-                [1590854887000, 1.225659],
-                [1590854947000, 0.0],
-                [1590855007000, 0.0]
-            ],
-            yAxisIndex: 1,
-            type: 'line'
+            data: dataDiskUtilization,
+            show: true,
+            type: "line"
         }],
         tooltip: {
             y: {
@@ -315,7 +388,48 @@ $(function () {
                 fontFamily: "Inter"
             }
         }
-    }).render();
+    };
+
+    var chart = new ApexCharts(document.querySelector("#disk-io-chart"), options);
+    chart.render();
+
+    function getNewData() {
+        var lastReadDate = dataDiskRead[dataDiskRead.length - 1][0];
+        var lastWriteDate = dataDiskWrite[dataDiskWrite.length - 1][0];
+        var lastUtilizationDate = dataDiskUtilization[dataDiskUtilization.length - 1][0];
+        var newTimestamp = Math.max(lastReadDate, lastWriteDate, lastUtilizationDate) + 60000;
+
+        var newRead = (Math.random() * 0.001 + 0.001).toFixed(6);
+        var newWrite = (Math.random() * 0.001 + 0.005).toFixed(6);
+        var newUtilization = (Math.random() * 10 + 10).toFixed(6);
+
+        dataDiskRead.push([newTimestamp, parseFloat(newRead)]);
+        dataDiskWrite.push([newTimestamp, parseFloat(newWrite)]);
+        dataDiskUtilization.push([newTimestamp, parseFloat(newUtilization)]);
+
+        var activeSeries = chart.w.config.series.map(series => series.show);
+
+        chart.updateSeries([{
+            name: '磁盘读',
+            data: dataDiskRead,
+            show: activeSeries[0],
+            type: "area"
+        }, {
+            name: '磁盘写',
+            data: dataDiskWrite,
+            show: activeSeries[1],
+            type: "area"
+        }, {
+            name: '磁盘IO利用率',
+            data: dataDiskUtilization,
+            show: activeSeries[2],
+            type: "line"
+        }]);
+    }
+
+    window.setInterval(function () {
+        getNewData();
+    }, 2000);
 }), $(document).ready(function () {
     new ApexCharts(document.querySelector("#user-processes-chart"), {
         chart: {
@@ -338,33 +452,33 @@ $(function () {
             name: "总运行进程数",
             type: "bar",
             data: [
-                [1590854596000, 192.0],
-                [1590854896000, 193.0],
-                [1590855196000, 193.0],
-                [1590855496000, 193.0],
-                [1590855796000, 192.0],
-                [1590856096000, 192.0],
-                [1590856396000, 193.0],
-                [1590856696000, 192.0],
-                [1590856996000, 194.0],
-                [1590857296000, 193.0],
-                [1590857596000, 193.0]
+                [1590854596000, 180.0],
+                [1590854896000, 185.0],
+                [1590855196000, 182.0],
+                [1590855496000, 188.0],
+                [1590855796000, 185.0],
+                [1590856096000, 190.0],
+                [1590856396000, 187.0],
+                [1590856696000, 183.0],
+                [1590856996000, 188.0],
+                [1590857296000, 186.0],
+                [1590857596000, 184.0]
             ].map(item => ({ x: item[0], y: item[1] }))
         }, {
             name: "正在运行的进程数",
             type: "bar",
             data: [
-                [1590854598000, 1.0],
-                [1590854898000, 1.0],
-                [1590855198000, 1.0],
-                [1590855498000, 1.0],
-                [1590855798000, 1.0],
-                [1590856098000, 1.0],
-                [1590856398000, 1.0],
-                [1590856698000, 1.0],
-                [1590856998000, 2.0],
-                [1590857298000, 3.0],
-                [1590857598000, 1.0]
+                [1590854598000, 36.0],
+                [1590854898000, 37.0],
+                [1590855198000, 36.0],
+                [1590855498000, 38.0],
+                [1590855798000, 37.0],
+                [1590856098000, 39.0],
+                [1590856398000, 38.0],
+                [1590856698000, 36.0],
+                [1590856998000, 38.0],
+                [1590857298000, 37.0],
+                [1590857598000, 36.0]
             ].map(item => ({ x: item[0], y: item[1] }))
         }],
         xaxis: {
@@ -436,17 +550,17 @@ $(function () {
     ];
 
     var dataOutflow = [
-        [1590854425000, 0.012698],
-        [1590854485000, 0.012027],
-        [1590854545000, 0.012343],
-        [1590854605000, 0.012425],
-        [1590854665000, 0.012824],
-        [1590854725000, 0.01309],
-        [1590854785000, 0.013779],
-        [1590854845000, 0.012379],
-        [1590854905000, 0.013389],
-        [1590854965000, 0.013143],
-        [1590855026000, 0.013099]
+        [1590854425000, 1.5],
+        [1590854485000, 2.1],
+        [1590854545000, 1.8],
+        [1590854605000, 2.0],
+        [1590854665000, 3.2],
+        [1590854725000, 4.5],
+        [1590854785000, 3.8],
+        [1590854845000, 2.3],
+        [1590854905000, 4.0],
+        [1590854965000, 3.1],
+        [1590855026000, 3.6]
     ];
 
     var options = {
@@ -460,7 +574,7 @@ $(function () {
                 enabled: true,
                 easing: 'linear',
                 dynamicAnimation: {
-                    speed: 1000
+                    speed: 2000
                 }
             },
             zoom: {
@@ -574,15 +688,10 @@ $(function () {
         var newTimestamp = Math.max(lastInflowDate, lastOutflowDate) + 60000;
 
         var newInflow = (Math.random() * 3 + 10).toFixed(6);
-        var newOutflow = (Math.random() / 10).toFixed(6);
+        var newOutflow = (Math.random() * 2 + 3).toFixed(6);
 
         dataInflow.push([newTimestamp, parseFloat(newInflow)]);
         dataOutflow.push([newTimestamp, parseFloat(newOutflow)]);
-
-        if (dataInflow.length > 10) {
-            dataInflow.shift();
-            dataOutflow.shift();
-        }
 
         // 获取当前图例显示状态
         var activeSeries = chart.w.config.series.map(series => series.show);
@@ -601,5 +710,5 @@ $(function () {
 
     window.setInterval(function () {
         getNewData();
-    }, 1000);
+    }, 2000);
 });
