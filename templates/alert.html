@@ -3,6 +3,9 @@
 
 <head>
     <meta charset="utf-8">
+    <!-- CSRF TOKEN -->
+    <meta name="csrf-token" content="{% csrf_token %}">
+    <!-- CSRF TOKEN -->
     <meta http-equiv="x-ua-compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -380,7 +383,7 @@
                         <h5 class="m-b-10">告警信息</h5>
                     </div>
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'alert' %}">首页</a></li>
                         <li class="breadcrumb-item">告警信息</li>
                     </ul>
                 </div>
@@ -397,9 +400,9 @@
             <div class="filter-section">
                 <form method="get" class="filters">
                     <input type="hidden" name="status_filter" value="{{ status_filter }}">
-                    <button class="btn btn-danger" type="submit" name="level" value="emergency">紧急</button>
-                    <button class="btn btn-warning" type="submit" name="level" value="severe">严重</button>
-                    <button class="btn btn-primary" type="submit" name="level" value="minor">次要</button>
+                    <button class="btn btn-danger" type="submit" name="level" value="fatal">紧急</button>
+                    <button class="btn btn-warning" type="submit" name="level" value="critical">严重</button>
+                    <button class="btn btn-primary" type="submit" name="level" value="error">错误</button>
                     <button class="btn btn-info" type="submit" name="level" value="warning">警告</button>
                     <button class="btn btn-secondary" type="submit" name="level" value="info">信息</button>
                     <input type="text" name="keyword" placeholder="关键词" value="{{ keyword }}">
@@ -412,51 +415,21 @@
                         <thead>
                             <tr>
                                 <th>级别</th>
-                                <th>关键词</th>
+                                <th>错误代码</th>
                                 <th>时间</th>
                                 <th>EventID</th>
                                 <th>状态</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
-                       <tbody>
-                            <!-- 循环显示警报信息 -->
-                            {% for alert in alerts %}
-                                <tr>
-                                    <td>{{ alert.get_level_display }}</td>
-                                    <td>{{ alert.title }}</td>
-                                    <td>{{ alert.time }}</td>
-                                    <td>{{ alert.event_id }}</td>
-                                    <td class="status">{{ alert.get_status_display }}</td>
-                                    <td class="actions">
-                                        {% if alert.status == 'unconfirmed' %}
-                                            <form method="post" style="display: inline;">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
-                                                <input type="hidden" name="action" value="confirm">
-                                                <button type="submit" style="color: green; border: none; background: none;">确认</button>
-                                            </form>
-                                        {% elif alert.status == 'confirmed' %}
-                                            <form method="post" style="display: inline;">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="alert_id" value="{{ alert.id }}">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button type="submit" style="color: red; border: none; background: none;">删除</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center">暂无数据</td>
-                                </tr>
-                            {% endfor %}
-                            <!-- 添加空行以补充表格 -->
-                            {% for _ in empty_rows %}
-                                <tr class="empty-row">
-                                    <td colspan="7" style="text-align: center;"></td>
-                                </tr>
-                            {% endfor %}
+
+                        <!-- Use global variate to pass the url -->
+                        <script type="text/javascript">
+                            const anomalyLogsUrl = '{% url "get-anomaly-logs" %}';
+                        </script>
+
+                        <tbody id="anomaly-logs-list">
+                            <!-- Insert Alerts Here -->
                         </tbody>
                     </table>
                 </div>
@@ -469,7 +442,7 @@
 
             <!-- [ Table Section ] start -->
             <div class="table-section">
-                <h6>通知记录——敬请期待</h6>
+                <h6>通知记录</h6>
                 <div class="table-container">
                     <table class="table">
                         <thead>
@@ -700,6 +673,10 @@
 <!--! BEGIN: Theme Customizer  !-->
 <script src="static/js/theme-customizer-init.min.js"></script>
 <!--! END: Theme Customizer !-->
+
+<!-- BEGIN: Alert Table Insert JS -->
+<script src="{% static 'js/alert.js' %}"></script>
+<!-- END: Alert Table Insert JS -->
 
 </body>
 
