@@ -2,54 +2,14 @@
 
 IntelliOps: An AIOps Web System.
 
+> [!NOTE]
+>
 > Code is available at [GitHub](https://github.com/InfinityUniverse0/IntelliOps).
-
-## Structure
-
-```sh
-.
-├── IntelliOps
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── LICENSE
-├── MainAPP
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── migrations
-│   ├── models.py
-│   ├── tests.py
-│   ├── urls.py
-│   ├── utils
-│   │   ├── __init__.py
-│   │   └── query_log.py
-│   └── views.py
-├── README.md
-├── data
-├── init_db.py
-├── manage.py
-├── model
-│   ├── anomaly_detection.py
-│   ├── ckpt
-│   │   └── model.pth
-│   └── model.py
-├── preprocessing
-│   ├── __init__.py
-│   └── preprocessing.py
-├── requirements.txt
-├── static
-│   ├── css
-│   ├── font
-│   ├── image
-│   └── js
-└── templates
-```
 
 ## Quick Start
 
+> [!NOTE]
+>
 > Suggested Python Version: `3.9` (Tested on `python 3.9.18`)
 
 ### Prerequisites
@@ -73,19 +33,21 @@ pip install -r requriements.txt
 
 ### Database Setup
 
+> [!NOTE]
+>
 > Make sure your MySQL service is running.
 
-First, set up your MySQL database config in `IntelliOps/settings.py`. Then run Django database migrations:
+First, in your MySQL command line, run:
+
+```mysql
+CREATE DATABASE IntelliOps CHARSET = UTF8;
+```
+
+Then set up your MySQL database configuration in `IntelliOps/settings.py`. After that run Django database migrations:
 
 ```sh
 python manage.py makemigrations
 python manage.py migrate
-```
-
-Then in your MySQL command line, run:
-
-```mysql
-CREATE DATABASE IntelliOps CHARSET = UTF8;
 ```
 
 Then initilize the database:
@@ -100,6 +62,52 @@ python init_db.py
 python manage.py runserver 127.0.0.1:8000
 ```
 
+> [!TIP]
+>
 > You can change the port as you want.
 
 Visit `127.0.0.1:8000` for the IntelliOps Web Project.
+
+## Project Structure
+
+```sh
+.
+├── IntelliOps      # Project
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── LICENSE
+├── MainAPP         # App
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations  # Django Migrations
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   ├── utils       # utils
+│   │   ├── __init__.py
+│   │   └── query_log.py
+│   └── views.py
+├── README.md
+├── data            # Data Path
+├── init_db.py      # Database Initialization
+├── manage.py
+├── model           # DeepLog Model
+│   ├── anomaly_detection.py
+│   ├── ckpt
+│   │   └── model.pth
+│   └── model.py
+├── preprocessing   # Data Preprocessing
+│   ├── __init__.py
+│   └── preprocessing.py
+├── requirements.txt
+├── static          # Static Files
+│   ├── css
+│   ├── font
+│   ├── image
+│   └── js
+└── templates       # HTML Files
+```
